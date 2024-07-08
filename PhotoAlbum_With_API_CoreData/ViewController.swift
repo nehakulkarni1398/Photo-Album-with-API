@@ -1,9 +1,5 @@
-//
 //  ViewController.swift
 //  PhotoAlbum_With_API_CoreData
-//
-//  Created by Mandar Choudhary on 14/06/24.
-//
 
 import UIKit
 import SDWebImage
@@ -12,28 +8,32 @@ class ViewController: UIViewController {
     @IBOutlet weak var photoTableView: UITableView!
     var photoArray : [Photos] = []
     var albumId = 0
-    var apiFlag = true
+    var apiImageLoadFlag = true
 
     override func viewDidLoad() {
         super.viewDidLoad()
         photoApiCall()
     }
-    
-    
+
     @IBAction func favouritePhotosDisplay(_ sender: UIBarButtonItem) {
-        apiFlag = false
+        apiImageLoadFlag = false
         DatabaseManager.shared.fetchPhotos { str in
             DispatchQueue.main.async {
                 self.photoTableView.reloadData()
-                
             }
         }
     }
     
     @IBAction func backToHomeScreen(_ sender: UIBarButtonItem) {
         photoApiCall()
-        self.apiFlag = true
+        self.apiImageLoadFlag = true
     }
+}
+
+// MARK: API Handling
+
+extension ViewController {
+    
     func photoApiCall() {
         let str = "https://jsonplaceholder.typicode.com/photos"
         guard let url = URL(string: str) else {return}
@@ -56,20 +56,21 @@ class ViewController: UIViewController {
     }
 }
 
+// MARK: UITableView Handling
+
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if apiFlag == true{
+        if apiImageLoadFlag == true{
             return photoArray.count
         }
         else
         {
             return DatabaseManager.shared.favouriteAlbum.count
         }
-        
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if apiFlag == true {
+        if apiImageLoadFlag == true {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "cell") as? CutomTableViewCell else {return UITableViewCell()}
             let photoObj = photoArray[indexPath.row]
             if let imagUrl = URL(string: photoObj.thumbnailUrl) {
@@ -91,7 +92,6 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
                 cell.photoTitle.text = photoObj.photoTitle
             return cell
         }
-        
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -99,7 +99,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if apiFlag == true{
+        if apiImageLoadFlag == true{
             let photo = photoArray[indexPath.row]
             guard let photoDetailVC = storyboard?.instantiateViewController(withIdentifier: "PhotoDetailsViewController") as? PhotoDetailsViewController else {return}
             guard let imagUrl = URL(string: photo.thumbnailUrl) else {return}
@@ -110,12 +110,12 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             navigationController?.pushViewController(photoDetailVC, animated: true)
         }
         else {
-            let photoObj = DatabaseManager.shared.favouriteAlbum[indexPath.row]
-            let actionController = UIAlertController(title: "Actions", message: "Do you want delete photot?", preferredStyle: .actionSheet)
-            let deleteAction = UIAlertAction(title: "Delete", style: .default) { act in
-                DatabaseManager.shared.deletePhoto(photo: photoObj)
-                DatabaseManager.shared.favouriteAlbum.remove(at: indexPath.row)
-                self.photoTableView.deleteRows(at: [indexPath], with: .automatic)
+                let photoObj = DatabaseManager.shared.favouriteAlbum[indexPath.row]
+                let actionController = UIAlertController(title: "Actions", message: "Do you want delete photot?", preferredStyle: .actionSheet)
+                let deleteAction = UIAlertAction(title: "Delete", style: .default) { act in
+                    DatabaseManager.shared.deletePhoto(photo: photoObj)
+                    DatabaseManager.shared.favouriteAlbum.remove(at: indexPath.row)
+                    self.photoTableView.deleteRows(at: [indexPath], with: .automatic)
             }
             let moreDatialAction = UIAlertAction(title: "More Details", style: .default) { act in
                 guard let photDetailViewController = self.storyboard?.instantiateViewController(withIdentifier: "PhotoDetailsViewController") as? PhotoDetailsViewController else {return}

@@ -1,9 +1,5 @@
-//
 //  PhotoDetailsViewController.swift
 //  PhotoAlbum_With_API_CoreData
-//
-//  Created by Mandar Choudhary on 14/06/24.
-//
 
 import UIKit
 import SDWebImage
@@ -41,6 +37,56 @@ class PhotoDetailsViewController: UIViewController {
         showNumberOfComments.text = String(comments)
         myImage.image = UIImage(data: imageData)
     }
+
+    @IBAction func cancelButton(_ sender: UIButton) {
+        navigationController?.popViewController(animated: true)
+    }
+    
+    @IBAction func updateDetails(_ sender: UIButton) {
+        if addFavouriteController.isOn {
+            DatabaseManager.shared.fetchPhotos { str in
+                guard let id = photoId else{return}
+                let filterPhots = DatabaseManager.shared.favouriteAlbum.filter { photo in
+                    photo.photoId == id
+                }
+                if filterPhots.count > 0 {
+                        let alertController = UIAlertController(title: "Opps!!!", message: "Photo is already availabel", preferredStyle: .alert)
+                        let okAction = UIAlertAction(title: "Ok", style: .default)
+                        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+                        alertController.addAction(okAction)
+                        alertController.addAction(cancelAction)
+                        self.present(alertController, animated: true)
+                    } else {
+                        guard let imageUrl = imageUrl else {return}
+                        do {
+                            let imageData = try Data(contentsOf: imageUrl)
+                            DatabaseManager.shared.addFaviourite(Title: showPhotoTitle.text!, userId: Int32(showUserId.text!) ?? 0, userName: showUserName.text!, comments: Int32(showNumberOfComments.text!) ?? 0, photoId: Int32(self.photoId ?? 0), albumId: Int32(self.albumId ?? 0), image: imageData)
+                            let alertController = UIAlertController(title: "Done", message: "Image Saved as Favourite", preferredStyle: .alert)
+                            let okAction = UIAlertAction(title: "Ok", style: .default)
+                            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+                            alertController.addAction(okAction)
+                            alertController.addAction(cancelAction)
+                            self.present(alertController, animated: true)
+                        } catch let error {
+                            print(error.localizedDescription)
+                    }
+                }
+            }
+        }
+        else
+        {
+            let alertController = UIAlertController(title: "Failed!!!", message: "check with your data", preferredStyle: .alert)
+            let okAction = UIAlertAction(title: "Ok", style: .default)
+            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
+            alertController.addAction(okAction)
+            alertController.addAction(cancelAction)
+            self.present(alertController, animated: true)
+        }
+    }
+}
+
+// MARK: API Handling
+extension PhotoDetailsViewController {
     
     func albumApiCall() {
         let albumStr = "https://jsonplaceholder.typicode.com/albums"
@@ -96,7 +142,7 @@ class PhotoDetailsViewController: UIViewController {
             } else {
                     print(error?.localizedDescription ?? "")
                 }
-            }.resume()
+        }.resume()
     }
     
     func commentsApiCall() {
@@ -117,60 +163,13 @@ class PhotoDetailsViewController: UIViewController {
                             }
                         self.showNumberOfComments.text = String(commentCounter)
                         }
-                    }catch let err {
+                }catch let err {
                         print(err.localizedDescription)
                     }
-                } else {
+            } else {
                     print(error?.localizedDescription ?? "")
                 }
-            }.resume()
-    }
-
-    @IBAction func cancelButton(_ sender: UIButton) {
-        navigationController?.popViewController(animated: true)
-    }
-    @IBAction func updateDetails(_ sender: UIButton) {
-        
-        if addFavouriteController.isOn {
-            DatabaseManager.shared.fetchPhotos { str in
-                guard let id = photoId else{return}
-                let filterPhots = DatabaseManager.shared.favouriteAlbum.filter { photo in
-                    photo.photoId == id
-                }
-                if filterPhots.count > 0 {
-                        let alertController = UIAlertController(title: "Opps!!!", message: "Photo is already availabel", preferredStyle: .alert)
-                        let okAction = UIAlertAction(title: "Ok", style: .default)
-                        let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-                        alertController.addAction(okAction)
-                        alertController.addAction(cancelAction)
-                        self.present(alertController, animated: true)
-                    } else {
-                        guard let imageUrl = imageUrl else {return}
-                        do {
-                            let imageData = try Data(contentsOf: imageUrl)
-                            DatabaseManager.shared.addFaviourite(Title: showPhotoTitle.text!, userId: Int32(showUserId.text!) ?? 0, userName: showUserName.text!, comments: Int32(showNumberOfComments.text!) ?? 0, photoId: Int32(self.photoId ?? 0), albumId: Int32(self.albumId ?? 0), image: imageData)
-                            let alertController = UIAlertController(title: "Done", message: "Image Saved as Favourite", preferredStyle: .alert)
-                            let okAction = UIAlertAction(title: "Ok", style: .default)
-                            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-                            alertController.addAction(okAction)
-                            alertController.addAction(cancelAction)
-                            self.present(alertController, animated: true)
-                        } catch let error {
-                            print(error.localizedDescription)
-                        }
-                }
-            }
-        }
-        else
-        {
-            let alertController = UIAlertController(title: "Failed!!!", message: "check with your data", preferredStyle: .alert)
-            let okAction = UIAlertAction(title: "Ok", style: .default)
-            let cancelAction = UIAlertAction(title: "Cancel", style: .cancel)
-            alertController.addAction(okAction)
-            alertController.addAction(cancelAction)
-            self.present(alertController, animated: true)
-        }
-        
+        }.resume()
     }
 }
 

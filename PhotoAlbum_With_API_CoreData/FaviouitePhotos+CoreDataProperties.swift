@@ -1,14 +1,8 @@
-//
 //  FaviouitePhotos+CoreDataProperties.swift
 //  PhotoAlbum_With_API_CoreData
-//
-//  Created by Mandar Choudhary on 17/06/24.
-//
-//
 
 import Foundation
 import CoreData
-
 
 extension FaviouitePhotos {
 
@@ -23,9 +17,7 @@ extension FaviouitePhotos {
     @NSManaged public var photoId: Int32
     @NSManaged public var albumId: Int32
     @NSManaged public var image: Data
-
 }
 
 extension FaviouitePhotos : Identifiable {
-
 }

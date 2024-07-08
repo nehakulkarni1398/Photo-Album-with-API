@@ -1,9 +1,5 @@
-//
 //  DatabaseManager.swift
 //  PhotoAlbum_With_API_CoreData
-//
-//  Created by Mandar Choudhary on 17/06/24.
-//
 
 import Foundation
 import UIKit
@@ -51,18 +47,6 @@ final class DatabaseManager {
             print( error.localizedDescription)
         }
     }
-    
-//    func checkForAvailabelPhoto(withPhotoId photoId: Int32) {
-//            let fetchRequest: NSFetchRequest<FaviouitePhotos> = FaviouitePhotos.fetchRequest()
-//            let predicate = NSPredicate(format: "photoId == %d", photoId)
-//            fetchRequest.predicate = predicate
-//
-//            do {
-//                let results = try context.fetch(fetchRequest)
-//            } catch let error {
-//                print("Could not fetch. \(error), \(error.localizedDescription)")
-//            }
-//        }
 }
 
 

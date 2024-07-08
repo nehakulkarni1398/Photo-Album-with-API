@@ -1,9 +1,5 @@
-//
 //  Structures.swift
 //  PhotoAlbum_With_API_CoreData
-//
-//  Created by Mandar Choudhary on 14/06/24.
-//
 
 import Foundation
 
